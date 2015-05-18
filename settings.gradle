@@ -1,1 +1,1 @@
-include ':app', ':normal', ':apt'
+include ':runtime', ':apt'
