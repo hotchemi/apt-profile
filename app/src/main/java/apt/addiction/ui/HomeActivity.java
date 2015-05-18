@@ -24,29 +24,28 @@ import apt.addiction.DemoApplication;
 import javax.inject.Inject;
 
 public class HomeActivity extends FragmentActivity {
-  @Inject LocationManager locationManager;
-  private HomeComponent component;
 
-  HomeComponent component() {
-    if (component == null) {
-      component = DaggerHomeComponent.builder()
-          .applicationComponent(((DemoApplication) getApplication()).component())
-          .activityModule(new ActivityModule(this))
-          .build();
-    }
-    return component;
-  }
+    @Inject LocationManager locationManager;
+    private HomeComponent component;
 
-  @Override protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    component().inject(this);
-
-    if (savedInstanceState == null) {
-      getSupportFragmentManager().beginTransaction()
-          .add(android.R.id.content, new HomeFragment())
-          .commit();
+    HomeComponent component() {
+        if (component == null) {
+            component = DaggerHomeComponent.builder()
+                    .applicationComponent(((DemoApplication) getApplication()).component())
+                    .activityModule(new ActivityModule(this))
+                    .build();
+        }
+        return component;
     }
 
-    // TODO do something with the injected dependencies here!
-  }
+    @Override protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        component().inject(this);
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(android.R.id.content, new HomeFragment())
+                    .commit();
+        }
+    }
+
 }

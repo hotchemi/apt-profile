@@ -20,32 +20,69 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.ListView;
+import android.widget.Toast;
+import apt.addiction.R;
+import apt.addiction.db.Item;
+import apt.addiction.task.InsertTask;
+import com.raizlabs.android.dbflow.sql.language.Select;
+import rx.Observer;
+import rx.subscriptions.CompositeSubscription;
+
 import javax.inject.Inject;
+import java.util.List;
 
-import static android.view.Gravity.CENTER;
+public class HomeFragment extends Fragment implements Observer<Void> {
 
-public class HomeFragment extends Fragment {
-  @Inject ActivityTitleController titleController;
+    private ListView listView;
 
-  @Override public void onActivityCreated(Bundle savedInstanceState) {
-    super.onActivityCreated(savedInstanceState);
-    ((HomeActivity) getActivity()).component().inject(this);
-  }
+    private CompositeSubscription subscriptions = new CompositeSubscription();
 
-  @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
-      Bundle savedInstanceState) {
-    TextView tv = new TextView(getActivity());
-    tv.setGravity(CENTER);
-    tv.setText("Hello, World");
-    return tv;
-  }
+    @Inject ActivityTitleController titleController;
 
-  @Override public void onResume() {
-    super.onResume();
+    @Override public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        ((HomeActivity) getActivity()).component().inject(this);
+        subscriptions.add(InsertTask.saveItems().subscribe(this));
+    }
 
-    // Fragments should not modify things outside of their own view. Use an external controller to
-    // ask the activity to change its title.
-    titleController.setTitle("Home Fragment");
-  }
+    @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                       Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        listView = (ListView) rootView.findViewById(R.id.list);
+
+        return rootView;
+    }
+
+    @Override public void onResume() {
+        super.onResume();
+        // Fragments should not modify things outside of their own view. Use an external controller to
+        // ask the activity to change its title.
+        titleController.setTitle("Home Fragment");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        subscriptions.unsubscribe();
+    }
+
+    @Override
+    public void onCompleted() {
+        List<Item> items = new Select().from(Item.class).queryList();
+        ItemAdapter adapter = new ItemAdapter(getActivity(), R.layout.row, items);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            Item item = adapter.getItem(position);
+            Toast.makeText(getActivity(), item.name, Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    @Override
+    public void onError(Throwable e) {
+    }
+
+    @Override
+    public void onNext(Void aVoid) {
+    }
 }

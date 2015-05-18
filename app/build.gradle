@@ -8,6 +8,7 @@ buildscript {
 }
 apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
+apply plugin: 'me.tatarka.retrolambda'
 
 repositories {
     jcenter()
@@ -30,6 +31,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
@@ -37,6 +42,11 @@ dependencies {
     compile 'com.android.support:support-annotations:22.0.0'
     compile "com.android.support:appcompat-v7:22.0.0"
     compile 'com.google.dagger:dagger:2.0'
+    compile "com.raizlabs.android:DBFlow-Core:2.0.0"
+    compile "com.raizlabs.android:DBFlow:2.0.0"
+    compile 'io.reactivex:rxandroid:0.24.0'
+
     apt "com.google.dagger:dagger-compiler:2.0"
+    apt 'com.raizlabs.android:DBFlow-Compiler:2.0.0'
     provided 'javax.annotation:jsr250-api:1.0'
 }
